@@ -6,6 +6,7 @@ import com.rohithk.expensetracker.entity.Expense;
 import com.rohithk.expensetracker.entity.OutboxEvent;
 import com.rohithk.expensetracker.repository.ExpenseRepository;
 import com.rohithk.expensetracker.repository.OutboxEventRepository;
+import com.rohithk.expensetracker.util.CurrentUserUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -22,31 +23,17 @@ public class ExpenseService {
 
     private final ExpenseRepository expenseRepository;
     //private final MonthlyAggregateRepository aggregateRepository;
+    private final CurrentUserUtil currentUserUtil;
     private final OutboxEventRepository outboxRepository;
     private final ObjectMapper objectMapper;
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public Expense createExpense(Expense expense) throws JsonProcessingException{
+        UUID userId = currentUserUtil.getId();
+        expense.setUserId(userId);
         expense.setCreatedAt(Instant.now());
         Expense savedExpense = expenseRepository.save(expense);
-
-//        int year = savedExpense.getOccurredAt().atZone(ZoneId.systemDefault()).getYear();
-//        int month = savedExpense.getOccurredAt().atZone(ZoneId.systemDefault()).getMonthValue();
-//        MonthlyAggregate aggregate = aggregateRepository
-//                .findByUserIdAndYearAndMonthAndCategory(expense.getUserId(), year, month, expense.getCategory())
-//                .orElseGet(()->{
-//                    MonthlyAggregate a = new MonthlyAggregate();
-//                    a.setUserId(expense.getUserId());
-//                    a.setMonth(month);
-//                    a.setYear(year);
-//                    a.setCategory(expense.getCategory());
-//                    return a;
-//                });
-//        BigDecimal totalAmount = aggregate.getTotalAmount().add(expense.getAmount());
-//        aggregate.setTotalAmount(totalAmount);
-//        aggregate.setUpdatedAt(Instant.now());
-//        aggregateRepository.save(aggregate);
 
         OutboxEvent event = new OutboxEvent();
         event.setAggregateType("Expense");
