@@ -10,7 +10,6 @@ import com.rohithk.expensetracker.repository.RoleRepository;
 import com.rohithk.expensetracker.repository.UserRepository;
 import com.rohithk.expensetracker.service.JwtService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -52,6 +51,7 @@ public class AuthenticationController {
         user.setEmail(authRequest.email());
         user.setPassword(passwordEncoder.encode(authRequest.password()));
         user.setFullName(authRequest.fullName());
+        user.setEnabled(true);
         var userRole = roleRepository.findByName("ROLE_USER")
                 .orElseThrow(()->new IllegalStateException(("ROLE_USER is missing in DB")));
         user.setRoles(Set.of(userRole));
