@@ -5,6 +5,7 @@ import com.rohithk.expensetracker.entity.Expense;
 import com.rohithk.expensetracker.repository.ExpenseRepository;
 import com.rohithk.expensetracker.service.ExpenseService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,14 +16,17 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/expenses")
 @RequiredArgsConstructor
+@Slf4j
 public class ExpenseController {
 
     private final ExpenseService expenseService;
     private final ExpenseRepository expenseRepository;
     @PostMapping
     public ResponseEntity<Expense> createExpense(@RequestBody Expense expense) {
+        log.info("user authenticated successfully and intiated expense created api");
         try {
             Expense saved = expenseService.createExpense(expense);
+            log.info("expense created and stored successfully in db");
             return ResponseEntity.status(HttpStatus.CREATED).body(saved);
         } catch (Exception e) {
             System.out.println(e.getStackTrace());
