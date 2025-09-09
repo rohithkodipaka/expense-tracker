@@ -44,14 +44,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 try{
                     Jws<Claims> claims = jwtService.parseToken(token);
                     String email = claims.getBody().getSubject();
+                    log.info("Email extracted from the token");
+                    log.info("call to fetch user Details from email is initiated");
                     UserDetails userDetails = userDetailsService.loadUserByUsername(email);
                     var authentication = new UsernamePasswordAuthenticationToken(userDetails,null,
                             userDetails.getAuthorities());
-
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
                 catch(Exception ex){
                     SecurityContextHolder.clearContext();
+                    log.info("Exception occured while fetching user details from jwt Token"+ex.getMessage());
                 }
             }
             filterChain.doFilter(request,response);

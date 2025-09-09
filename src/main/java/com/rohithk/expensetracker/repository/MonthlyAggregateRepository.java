@@ -11,4 +11,5 @@ import java.util.UUID;
 @Repository
 public interface MonthlyAggregateRepository extends JpaRepository<MonthlyAggregate, UUID> {
     public Optional<MonthlyAggregate> findByUserIdAndYearAndMonthAndCategory(UUID userId, int year, int month, String category);
+    public Optional<MonthlyAggregate> findByUserId(UUID userId);
 }
