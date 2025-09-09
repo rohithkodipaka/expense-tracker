@@ -7,7 +7,9 @@ import com.rohithk.expensetracker.entity.MonthlyAggregate;
 import com.rohithk.expensetracker.entity.OutboxEvent;
 import com.rohithk.expensetracker.repository.MonthlyAggregateRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,8 +20,10 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ExpenseEventConsumer {
 
+    private final SimpMessagingTemplate simpMessagingTemplate;
     private final MonthlyAggregateRepository aggregateRepository;
     private final ObjectMapper objectMapper;
 
@@ -59,6 +63,10 @@ public class ExpenseEventConsumer {
         aggregate.setUpdatedAt(Instant.now());
 
         // Save back to DB
-        aggregateRepository.save(aggregate);
+        MonthlyAggregate savedAggregate = aggregateRepository.save(aggregate);
+
+        //publish to Websocket topic
+        simpMessagingTemplate.convertAndSend("/topic/aggregates",savedAggregate);
+        log.info("Aggregate successfully pushed to Web Socket"+savedAggregate);
     }
 }
